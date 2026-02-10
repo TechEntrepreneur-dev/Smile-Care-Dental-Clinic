@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmileCare Dental Clinic - Dr. Rahul Sharma</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- AOS Animation Library CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    animation: { 
+                        blob: "blob 7s infinite",
+                        float: "float 6s ease-in-out infinite"
+                    },
+                    keyframes: {
+                        blob: {
+                            "0%": { transform: "translate(0px, 0px) scale(1)" },
+                            "33%": { transform: "translate(30px, -50px) scale(1.1)" },
+                            "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
+                            "100%": { transform: "translate(0px, 0px) scale(1)" }
+                        },
+                        float: {
+                            "0%, 100%": { transform: "translateY(0)" },
+                            "50%": { transform: "translateY(-10px)" }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Smooth scrolling for the whole page */
+        html { scroll-behavior: smooth; }
+        /* Hide scrollbar for cleaner look */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 overflow-x-hidden">
+
+    <div id="root"></div>
+
+    <!-- AOS Script -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- Custom Icon Component ---
+        const Icon = ({ name, size = 24, className = "" }) => {
+            const icons = {
+                phone: <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>,
+                map: <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>,
+                clock: <><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></>,
+                menu: <><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></>,
+                x: <><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></>,
+                calendar: <><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></>,
+                check: <polyline points="20 6 9 17 4 12"></polyline>,
+                star: <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>,
+                smile: <><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></>,
+                message: <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>,
+                activity: <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>,
+                zap: <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>,
+                shield: <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>,
+                whatsapp: <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+            };
+
+            return (
+                <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                    {icons[name] || <circle cx="12" cy="12" r="10"></circle>}
+                </svg>
+            );
+        };
+
+        const App = () => {
+            const [isMenuOpen, setIsMenuOpen] = useState(false);
+            const [formData, setFormData] = useState({
+                name: '',
+                phone: '',
+                service: 'General Dentistry',
+                date: ''
+            });
+
+            // Initialize Animations on Load
+            useEffect(() => {
+                AOS.init({
+                    duration: 800,
+                    once: true,
+                    offset: 100,
+                    easing: 'ease-out-cubic'
+                });
+            }, []);
+
+            const scrollTo = (id) => {
+                setIsMenuOpen(false);
+                const element = document.getElementById(id);
+                if (element) element.scrollIntoView({ behavior: 'smooth' });
+            };
+
+            const handleChange = (e) => {
+                setFormData({...formData, [e.target.name]: e.target.value});
+            };
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                const message = `*🦷 New Appointment Request*%0A%0A*Name:* ${formData.name}%0A*Phone:* ${formData.phone}%0A*Service:* ${formData.service}%0A*Preferred Date:* ${formData.date}%0A%0APlease confirm this slot.`;
+                const whatsappUrl = `https://wa.me/919876543210?text=${message}`;
+                window.open(whatsappUrl, '_blank');
+            };
+
+            const openChatbot = () => {
+                if (window.chatbase) window.chatbase("open");
+            };
+
+            return (
+                <div className="min-h-screen bg-white font-sans text-gray-800">
+                    
+                    {/* Top Bar */}
+                    <div className="bg-blue-900 text-white py-2 px-4 text-sm hidden md:block">
+                        <div className="max-w-6xl mx-auto flex justify-between items-center">
+                            <div className="flex space-x-6">
+                                <span className="flex items-center hover:text-blue-200 transition-colors"><Icon name="phone" size={14} className="mr-2"/> +91 98765 43210</span>
+                                <span className="flex items-center hover:text-blue-200 transition-colors"><Icon name="map" size={14} className="mr-2"/> Vizag, Andhra Pradesh</span>
+                            </div>
+                            <div className="flex items-center"><Icon name="clock" size={14} className="mr-2"/> Mon–Sat, 9 AM – 8 PM</div>
+                        </div>
+                    </div>
+
+                    {/* Navigation */}
+                    <nav className="sticky top-0 z-50 bg-white shadow-md/80 backdrop-blur-md">
+                        <div className="max-w-6xl mx-auto px-4">
+                            <div className="flex justify-between items-center h-20">
+                                <div className="flex items-center cursor-pointer group" onClick={() => scrollTo('home')}>
+                                    <div className="bg-blue-600 p-2 rounded-lg mr-2 transform group-hover:rotate-12 transition-transform duration-300">
+                                        <Icon name="smile" className="text-white" size={24} />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-2xl font-bold text-blue-900 leading-none">SmileCare</h1>
+                                        <p className="text-xs text-blue-600 font-medium tracking-wider">DENTAL CLINIC</p>
+                                    </div>
+                                </div>
+
+                                <div className="hidden md:flex items-center space-x-8">
+                                    {['Home', 'Services', 'Doctor', 'Contact'].map((item) => (
+                                        <button key={item} onClick={() => scrollTo(item.toLowerCase())} className="text-gray-600 hover:text-blue-600 font-medium transition-colors relative after:content-[''] after:absolute after:w-0 after:h-0.5 after:bg-blue-600 after:left-0 after:-bottom-1 after:transition-all hover:after:w-full">{item}</button>
+                                    ))}
+                                    <button onClick={() => scrollTo('appointment')} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-full font-semibold transition-all shadow-lg hover:shadow-blue-200 hover:-translate-y-0.5 flex items-center active:scale-95">
+                                        <Icon name="calendar" size={18} className="mr-2" /> Book Now
+                                    </button>
+                                </div>
+
+                                <div className="md:hidden">
+                                    <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-600 hover:text-blue-600 transition-colors">
+                                        <Icon name={isMenuOpen ? "x" : "menu"} size={28} />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {/* Mobile Menu */}
+                        <div className={`md:hidden bg-white border-t border-gray-100 shadow-lg absolute w-full left-0 transition-all duration-300 ease-in-out origin-top ${isMenuOpen ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0 h-0 overflow-hidden'}`}>
+                            <div className="flex flex-col space-y-4 px-6 py-4">
+                                {['Home', 'Services', 'Doctor', 'Contact'].map((item) => (
+                                    <button key={item} onClick={() => scrollTo(item.toLowerCase())} className="text-left text-gray-700 font-medium py-2 border-b border-gray-50 active:bg-blue-50 transition-colors">{item}</button>
+                                ))}
+                                <button onClick={() => scrollTo('appointment')} className="bg-blue-600 text-white py-3 rounded-lg font-bold text-center mt-2 shadow-md active:scale-95 transition-transform">Book Appointment</button>
+                            </div>
+                        </div>
+                    </nav>
+
+                    {/* Hero Section */}
+                    <section id="home" className="relative bg-gradient-to-r from-blue-50 to-indigo-50 py-20 lg:py-28 overflow-hidden">
+                        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center">
+                            <div className="md:w-1/2 mb-10 md:mb-0 z-10" data-aos="fade-right">
+                                <div className="inline-block bg-blue-100 text-blue-800 px-4 py-1.5 rounded-full text-sm font-semibold mb-6 animate-pulse">Trusted by 5000+ Patients in Vizag</div>
+                                <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-blue-900 leading-tight mb-6">Your Smile, <br/><span className="text-blue-600">Our Priority.</span></h1>
+                                <p className="text-lg text-gray-600 mb-8 leading-relaxed">Advanced dental care by <strong>Dr. Rahul Sharma</strong>. Experience painless treatments in a state-of-the-art hygienic environment.</p>
+                                
+                                <div className="flex flex-col sm:flex-row gap-4">
+                                    <button onClick={() => scrollTo('appointment')} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-bold text-lg shadow-xl shadow-blue-200 transition-all hover:-translate-y-1 active:scale-95 flex justify-center items-center">Book Appointment</button>
+                                    <button onClick={openChatbot} className="bg-white border-2 border-blue-600 text-blue-600 hover:bg-blue-50 px-8 py-4 rounded-lg font-bold text-lg shadow-md transition-all hover:-translate-y-1 active:scale-95 flex justify-center items-center group">
+                                        <Icon name="message" size={20} className="mr-2 group-hover:scale-110 transition-transform" /> Chat with AI Assistant
+                                    </button>
+                                </div>
+
+                                <div className="mt-8 flex items-center text-sm text-gray-500 font-medium">
+                                    <div className="flex items-center mr-6"><Icon name="check" size={16} className="text-green-500 mr-2" /> Instant Confirmation</div>
+                                    <div className="flex items-center"><Icon name="check" size={16} className="text-green-500 mr-2" /> No Waiting Time</div>
+                                </div>
+                            </div>
+                            
+                            {/* Hero Image Area */}
+                            <div className="md:w-1/2 relative z-10" data-aos="fade-left" data-aos-delay="200">
+                                {/* Blobs */}
+                                <div className="absolute -z-10 top-0 right-0 w-72 h-72 bg-blue-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+                                <div className="absolute -z-10 top-0 -left-4 w-72 h-72 bg-purple-200 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob" style={{animationDelay: '2s'}}></div>
+                                
+                                {/* Image Card - Updated Height and Padding for Mobile Fix */}
+                                <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-blue-100 h-96 md:h-[500px] w-full flex flex-col items-center justify-center text-center p-8 pb-32 md:pb-8 animate-float">
+                                    <div className="bg-white p-6 rounded-full shadow-inner mb-6">
+                                        <Icon name="smile" size={60} className="text-blue-500" />
+                                    </div>
+                                    <p className="text-blue-900 font-bold text-2xl">Modern Dental Care Center</p>
+                                    <p className="text-blue-600 mt-2 font-medium">Visakhapatnam, AP</p>
+                                    
+                                    <div className="absolute bottom-6 left-6 bg-white p-4 rounded-xl shadow-lg flex items-center space-x-3 transform transition-transform hover:scale-105 duration-300 cursor-default">
+                                        <div className="bg-green-100 p-2 rounded-full"><Icon name="star" className="text-green-600" size={20} /></div>
+                                        <div>
+                                            <p className="font-bold text-gray-900">4.9/5 Rating</p>
+                                            <p className="text-xs text-gray-500">Based on 200+ Reviews</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Services Section */}
+                    <section id="services" className="py-20 bg-white">
+                        <div className="max-w-6xl mx-auto px-4">
+                            <div className="text-center mb-16" data-aos="fade-up">
+                                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Our Services</h2>
+                                <p className="text-gray-600 max-w-2xl mx-auto">Comprehensive dental care solutions tailored to your needs.</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {[
+                                    { icon: "activity", title: "General Dentistry", desc: "Routine checkups, cleanings, and fillings." },
+                                    { icon: "zap", title: "Root Canal Treatment", desc: "Painless single-sitting root canals." },
+                                    { icon: "smile", title: "Teeth Whitening", desc: "Professional bleaching treatments." },
+                                    { icon: "shield", title: "Braces & Aligners", desc: "Correct misaligned teeth and bite issues." },
+                                    { icon: "check", title: "Dental Implants", desc: "Permanent, natural-looking replacements." },
+                                    { icon: "activity", title: "Emergency Dental Care", desc: "Immediate attention for toothaches & trauma.", highlight: true }
+                                ].map((service, idx) => (
+                                    <div 
+                                        key={idx} 
+                                        data-aos="fade-up"
+                                        data-aos-delay={idx * 100} 
+                                        className={`p-8 rounded-xl transition-all duration-300 border group ${service.highlight ? 'bg-red-50 border-red-100 hover:shadow-red-100' : 'bg-gray-50 border-transparent hover:bg-white hover:shadow-xl hover:-translate-y-2'}`}
+                                    >
+                                        <div className={`w-14 h-14 rounded-lg flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110 ${service.highlight ? 'bg-white text-red-600' : 'bg-white shadow-sm text-blue-600'}`}>
+                                            <Icon name={service.icon} size={32} />
+                                        </div>
+                                        <h3 className={`text-xl font-bold mb-3 ${service.highlight ? 'text-red-700' : 'text-gray-900'}`}>{service.title}</h3>
+                                        <p className="text-gray-600 leading-relaxed text-sm">{service.desc}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* About Doctor */}
+                    <section id="doctor" className="py-20 bg-blue-50">
+                        <div className="max-w-6xl mx-auto px-4">
+                            <div className="flex flex-col md:flex-row items-center gap-12">
+                                <div className="w-full md:w-1/3" data-aos="zoom-in-right">
+                                    <div className="bg-white p-4 rounded-2xl shadow-xl transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                                        <div className="bg-gray-200 h-64 md:h-80 rounded-xl w-full flex items-center justify-center text-gray-400 mb-4 overflow-hidden relative group">
+                                            <span className="text-6xl transition-transform duration-500 group-hover:scale-110">👨‍⚕️</span>
+                                        </div>
+                                        <div className="text-center">
+                                            <h3 className="text-2xl font-bold text-blue-900">Dr. Rahul Sharma</h3>
+                                            <p className="text-blue-600 font-semibold">BDS, MDS</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="w-full md:w-2/3" data-aos="fade-left">
+                                    <div className="flex items-center mb-6">
+                                        <div className="bg-blue-600 text-white font-bold px-3 py-1 rounded text-sm uppercase tracking-wide mr-4 shadow-md">Chief Dentist</div>
+                                    </div>
+                                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">Meet Your Specialist</h2>
+                                    <p className="text-gray-700 text-lg mb-6 leading-relaxed">
+                                        With over <span className="font-bold text-blue-800">8+ years of experience</span> in clinical dentistry, Dr. Rahul Sharma is dedicated to providing painless and effective treatments. He specializes in advanced cosmetic procedures and complex root canal therapies.
+                                    </p>
+                                    
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                                        <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-600 hover:shadow-md transition-shadow">
+                                            <p className="font-bold text-gray-900">Education</p>
+                                            <p className="text-gray-600">MDS (Conservative Dentistry)</p>
+                                        </div>
+                                        <div className="bg-white p-4 rounded-lg shadow-sm border-l-4 border-blue-600 hover:shadow-md transition-shadow">
+                                            <p className="font-bold text-gray-900">Experience</p>
+                                            <p className="text-gray-600">8+ Years Clinical Practice</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Book Appointment */}
+                    <section id="appointment" className="py-20 bg-white">
+                        <div className="max-w-4xl mx-auto px-4">
+                            <div className="text-center mb-10" data-aos="fade-down">
+                                <h2 className="text-3xl md:text-4xl font-bold text-blue-900 mb-4">Book Your Appointment</h2>
+                                <p className="text-gray-600">Fill out the form below and we will confirm your slot via WhatsApp.</p>
+                            </div>
+
+                            <div className="bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-100 transform transition-all hover:shadow-3xl" data-aos="zoom-in-up">
+                                <div className="h-2 bg-blue-600 w-full"></div>
+                                <div className="p-8 md:p-12">
+                                    <form className="space-y-6" onSubmit={handleSubmit}>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="group">
+                                                <label className="block text-gray-700 font-semibold mb-2 group-focus-within:text-blue-600 transition-colors">Patient Name *</label>
+                                                <input 
+                                                    name="name" required
+                                                    value={formData.name} onChange={handleChange}
+                                                    type="text" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all" placeholder="Enter full name" 
+                                                />
+                                            </div>
+                                            <div className="group">
+                                                <label className="block text-gray-700 font-semibold mb-2 group-focus-within:text-blue-600 transition-colors">Phone Number *</label>
+                                                <input 
+                                                    name="phone" required
+                                                    value={formData.phone} onChange={handleChange}
+                                                    type="tel" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all" placeholder="+91 XXXXX XXXXX" 
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="group">
+                                                <label className="block text-gray-700 font-semibold mb-2 group-focus-within:text-blue-600 transition-colors">Service Required</label>
+                                                <select name="service" value={formData.service} onChange={handleChange} className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 bg-white outline-none transition-all cursor-pointer">
+                                                    <option>General Dentistry</option>
+                                                    <option>Root Canal Treatment</option>
+                                                    <option>Teeth Whitening</option>
+                                                    <option>Braces & Aligners</option>
+                                                    <option>Dental Implants</option>
+                                                    <option>Emergency Dental Care</option>
+                                                </select>
+                                            </div>
+                                            <div className="group">
+                                                <label className="block text-gray-700 font-semibold mb-2 group-focus-within:text-blue-600 transition-colors">Preferred Date</label>
+                                                <input name="date" required value={formData.date} onChange={handleChange} type="date" className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all cursor-pointer" />
+                                            </div>
+                                        </div>
+
+                                        <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg text-lg shadow-lg hover:shadow-xl transition-all flex justify-center items-center hover:-translate-y-1 active:scale-95">
+                                            Confirm via WhatsApp <Icon name="whatsapp" size={20} className="ml-2" />
+                                        </button>
+                                        <p className="text-center text-gray-400 text-xs mt-4">We will reply instantly to confirm your time.</p>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Contact & Footer */}
+                    <section id="contact" className="py-20 bg-gray-900 text-white">
+                        <div className="max-w-6xl mx-auto px-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-12" data-aos="fade-up">
+                                <div>
+                                    <div className="flex items-center mb-6">
+                                        <Icon name="smile" className="text-blue-400 mr-2" size={32} />
+                                        <h2 className="text-2xl font-bold">SmileCare</h2>
+                                    </div>
+                                    <p className="text-gray-400 mb-6">Providing world-class dental care in Vizag. Your smile is our greatest asset.</p>
+                                    <div className="flex items-start mb-4">
+                                        <Icon name="map" className="text-blue-400 mr-3 mt-1" size={20} />
+                                        <p className="text-gray-300 hover:text-white transition-colors">#123, Doctor's Colony,<br/>Beside Main Road,<br/>Visakhapatnam, AP</p>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 className="text-xl font-bold mb-6 border-b border-gray-700 pb-2 inline-block">Clinic Hours</h3>
+                                    <ul className="space-y-4">
+                                        <li className="flex justify-between items-center text-gray-300"><span>Monday - Saturday</span><span className="font-semibold text-white">9:00 AM - 8:00 PM</span></li>
+                                        <li className="flex justify-between items-center text-gray-300"><span>Sunday</span><span className="text-red-400">Closed</span></li>
+                                    </ul>
+                                </div>
+
+                                <div>
+                                    <h3 className="text-xl font-bold mb-6 border-b border-gray-700 pb-2 inline-block">Contact Us</h3>
+                                    <div className="bg-gray-800 p-4 rounded-lg flex items-center hover:bg-gray-700 transition-colors cursor-pointer" onClick={() => window.open('tel:+919876543210')}>
+                                        <Icon name="phone" className="text-green-400 mr-3" size={24} />
+                                        <div>
+                                            <p className="text-xs text-gray-400">Call for Appointment</p>
+                                            <p className="text-xl font-bold text-white">+91 98765 43210</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="border-t border-gray-800 mt-16 pt-8 text-center text-gray-500 text-sm">
+                                &copy; {new Date().getFullYear()} SmileCare Dental Clinic. All rights reserved.
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* FLOATING ACTION BUTTONS */}
+                    <div className="fixed bottom-6 left-6 flex flex-col space-y-4 z-50">
+                        
+                        <a href="tel:+919876543210" className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-2xl transition-all flex items-center justify-center hover:scale-110 group relative animate-bounce" style={{animationDuration: '2s'}}>
+                            <Icon name="phone" size={28} />
+                            <span className="absolute left-full ml-3 bg-white text-gray-800 text-xs font-bold px-2 py-1 rounded shadow-md w-max hidden md:block opacity-0 group-hover:opacity-100 transition-opacity">Call Clinic</span>
+                        </a>
+
+                        <a 
+                            href="https://wa.me/919876543210?text=Hello%20Dr.%20Sharma,%20I%20have%20a%20query%20regarding%20dental%20services." 
+                            target="_blank" 
+                            className="bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-2xl transition-all flex items-center justify-center hover:scale-110 group relative"
+                        >
+                            <Icon name="whatsapp" size={32} />
+                            <span className="absolute left-full ml-3 bg-white text-gray-800 text-xs font-bold px-2 py-1 rounded shadow-md w-max hidden md:block opacity-0 group-hover:opacity-100 transition-opacity">Chat on WhatsApp</span>
+                        </a>
+                    </div>
+
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+
+    <!-- CHATBASE EMBED CODE -->
+    <script>
+    (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="PFk8QhdJOdK5sV--Tcndu";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+    </script>
+
+</body>
+</html>
